@@ -1,3 +1,33 @@
+import json
+from datetime import datetime
+
+
+def loadClubs():
+    with open('clubs.json') as c:
+        listOfClubs = json.load(c)['clubs']
+        return listOfClubs
+
+
+def loadCompetitions():
+    with open('competitions.json') as comps:
+        listOfCompetitions = json.load(comps)['competitions']
+        return listOfCompetitions
+
+
+def sortCompetitionsDate(comps):
+    past = []
+    present = []
+
+    for comp in comps:
+        compDate = datetime.strptime(comp['date'], '%Y-%m-%d %H:%M:%S')
+        if compDate < datetime.now():
+            past.append(comp)
+        elif compDate >= datetime.now():
+            present.append(comp)
+
+    return past, present
+
+
 def initializeBookedPlaces(comps, clubsList):
     places = []
     for comp in comps:
