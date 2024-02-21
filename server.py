@@ -1,6 +1,8 @@
 import json
 from flask import Flask, render_template, request, redirect, flash, url_for
 
+from utils import (updateBookedPlaces, initializeBookedPlaces)
+
 
 def loadClubs():
     with open('clubs.json') as c:
@@ -19,6 +21,7 @@ app.secret_key = 'something_special'
 
 competitions = loadCompetitions()
 clubs = loadClubs()
+placesBooked = initializeBookedPlaces(competitions, clubs)
 
 
 @app.route('/')
@@ -69,11 +72,18 @@ def purchasePlaces():
         if placesRequired > int(club['points']):
             flash("You don't have enough points.", 'error')
 
-        if placesRequired > int(competition['numberOfPlaces']):
+        elif placesRequired > int(competition['numberOfPlaces']):
             flash('Not enough places available.', 'error')
+
+        elif placesRequired > 12:
+            flash(
+                "You can't book more than 12 places in a competition.", 'error'
+            )
 
         else:
             try:
+                updateBookedPlaces(
+                    competition, club, placesBooked, placesRequired)
                 competition[
                     'numberOfPlaces'] = int(
                         competition['numberOfPlaces']) - placesRequired
